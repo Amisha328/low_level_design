@@ -16,7 +16,7 @@ If time runs short, code Elevator.step() fully and describe the rest in words. I
    
 Prompt: design a system that controls multiple elevators in a building. It serves hall calls (a button on a floor) and destination requests (a button inside a car).
 
-**Questions worth asking (we asked these):*- 
+**Questions worth asking (we asked these):** 
 > Is the door mechanism in scope? 
 > How many elevators, fixed or dynamic? 
 > Can a rider press several floors? 
@@ -65,8 +65,8 @@ Each tick, in this order:
 4. Nothing ahead: reverse the direction, state MOVING, and return. Reversing costs a tick, which is a deliberate simplification you should state.
 5. Otherwise move one floor in the current direction, state MOVING.
 
-**Trace 1*- to practice: elevator at floor 0, IDLE, requests {1, 3}. Tick 1 moves to 1, tick 2 stops at 1, tick 3 moves to 2, tick 4 moves to 3, tick 5 stops at 3, tick 6 goes IDLE.
-**Trace 2:*- elevator at floor 5 going DOWN with requests {7, 2}. It moves down 4, 3, 2 and stops at 2. Next tick nothing is ahead, so it reverses (one tick). Then it moves up 3, 4, 5, 6, 7 and stops at 7. SCAN finishes the current direction before reversing, even though 7 is closer.
+**Trace 1** to practice: elevator at floor 0, IDLE, requests {1, 3}. Tick 1 moves to 1, tick 2 stops at 1, tick 3 moves to 2, tick 4 moves to 3, tick 5 stops at 3, tick 6 goes IDLE.
+**Trace 2:** elevator at floor 5 going DOWN with requests {7, 2}. It moves down 4, 3, 2 and stops at 2. Next tick nothing is ahead, so it reverses (one tick). Then it moves up 3, 4, 5, 6, 7 and stops at 7. SCAN finishes the current direction before reversing, even though 7 is closer.
 
 `Why direction is a separate field from state: a STOPPED elevator must remember which way it was heading so it can continue after serving the floor. If direction lived inside the state enum (MOVING_UP), that memory would be lost the moment it stops.`
 
@@ -167,15 +167,15 @@ If both return undefined, the call goes into pendingHallCalls and is retried at 
 
 
 **Output from your run, which this code should reproduce:**
-> tick 0 -> E1: floor 2 IDLE - | E2: floor 7 MOVING UP
-> tick 1 -> E1: floor 3 MOVING UP | E2: floor 7 MOVING DOWN
-> tick 2 -> E1: floor 4 MOVING UP | E2: floor 6 MOVING DOWN
-> tick 3 -> E1: floor 4 STOPPED UP | E2: floor 5 MOVING DOWN
-> tick 4 -> E1: floor 4 IDLE - | E2: floor 5 STOPPED DOWN
-> tick 5 -> E1: floor 3 MOVING DOWN | E2: floor 5 IDLE -
-> tick 6 -> E1: floor 3 STOPPED DOWN | E2: floor 5 IDLE -
-> tick 7 -> E1: floor 3 IDLE - | E2: floor 5 IDLE -
-> tick 8 -> E1: floor 3 IDLE - | E2: floor 5 IDLE -
+tick 0 -> E1: floor 2 IDLE - | E2: floor 7 MOVING UP
+tick 1 -> E1: floor 3 MOVING UP | E2: floor 7 MOVING DOWN
+tick 2 -> E1: floor 4 MOVING UP | E2: floor 6 MOVING DOWN
+tick 3 -> E1: floor 4 STOPPED UP | E2: floor 5 MOVING DOWN
+tick 4 -> E1: floor 4 IDLE - | E2: floor 5 STOPPED DOWN
+tick 5 -> E1: floor 3 MOVING DOWN | E2: floor 5 IDLE -
+tick 6 -> E1: floor 3 STOPPED DOWN | E2: floor 5 IDLE -
+tick 7 -> E1: floor 3 IDLE - | E2: floor 5 IDLE -
+tick 8 -> E1: floor 3 IDLE - | E2: floor 5 IDLE -
 
 What this run shows: the UP call at floor 3 waits in the pending queue because no car qualifies, then E1 (idle at 4) takes it at tick 5 and stops at 3 on tick 6. Nothing is dropped, though E1 could ideally have picked it up at tick 1 on its way up. That gap is a latency tradeoff, not a correctness bug.
 
