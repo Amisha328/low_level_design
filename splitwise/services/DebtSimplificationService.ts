@@ -21,13 +21,13 @@ export class DebtSimplificationService {
         // Net Balance = totalPaid - totalExpense (or sum of relative balances)
 
         allBalanceSheets.forEach((sheet, userId) => {
-            const net = sheet.getTotalPaid() - sheet.getTotalExpense();
+            const net = sheet.getTotalGetBack() - sheet.getTotalOwed();
             if(Math.abs(net) >= 0.01){
                 netBalances.set(userId, Number(net.toFixed(2)));
             }
         });
 
-        // Seperate memeber into Debtors (net -ve) and creditors (net +ve) 
+        // Seperate member into Debtors (net -ve) and creditors (net +ve) 
         const debtors: { userId: string, amount: number } [] = [];
         const creditors: { userId: string, amount: number } [] = [];
 
@@ -67,5 +67,21 @@ export class DebtSimplificationService {
             if(creditors[j].amount < 0.01) j++;
         }
         return transactions;
+    }
+
+    public applySimplifiedBalances(group: Group, transactions: SimplifiedTransaction[]): void {
+        const sheets = group.getAllBalanceSheets();
+
+        sheets.forEach((sheet) => {
+            sheet.resetPairwiseBalances();
+        })
+
+        for(const tx of transactions){
+            const debtorSheet = group.getBalanceSheetForUser(tx.from);
+            const creditorSheet = group.getBalanceSheetForUser(tx.to);
+
+            debtorSheet.updateBalanceSheetForUser(tx.to, -tx.amount);
+            creditorSheet.updateBalanceSheetForUser(tx.from, tx.amount);
+        }
     }
 }

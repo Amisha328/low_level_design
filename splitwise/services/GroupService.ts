@@ -77,4 +77,28 @@ export class GroupService {
         }
         return this.simplifier.simplifyDebts(group);
     }
+    
+    /*
+        toggling simplification rewrites pairwise balances for the group
+    */
+    public async toggleSimplifyDebts(groupId: string, enabled: boolean): Promise<SimplifiedTransaction[]> {
+        const lock = this.expenseService.getGroupLock(groupId);
+        if(!lock) throw new Error(`can't acquire the lock for the groupId ${groupId}`);
+
+        const release = await lock.acquire();
+
+        try {
+            const group = this.groupRepo.findById(groupId);
+            if(!group) throw new Error(`Group with ID ${groupId} not found.`);
+
+            group.setSimplifyDebtsEnabled(enabled);
+            const transactions = enabled ? this.simplifier.simplifyDebts(group): [];
+            
+            this.groupRepo.save(group);
+            return transactions;
+        }
+        finally{
+            release();
+        }
+    }
 }

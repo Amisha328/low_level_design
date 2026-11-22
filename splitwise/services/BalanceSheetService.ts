@@ -6,11 +6,11 @@ import { User } from "../models/User";
 export class BalanceSheetService {
 
     // Orchestrates the bi-directional balance sheet updates for an expense
-    public updateBalances(group: Group, paidBy: User, totalAmount: number, splits: Split[]): void {
+    public updateBalances(group: Group, paidBy: User, totalAmount: number, splits: Split[], isSettlement: boolean = false): void {
         const payerSheet = group.getBalanceSheetForUser(paidBy.userId);
 
         // Update Payer's total out-of-pocket payment
-        payerSheet.addTotalPaid(totalAmount);
+        if(!isSettlement) payerSheet.addTotalPaid(totalAmount);
 
         // Process each participant's share
         for(let split of splits){
@@ -20,7 +20,7 @@ export class BalanceSheetService {
             // Update participant's overall expense obligation
             const debtorSheet = group.getBalanceSheetForUser(debtorId);
             // Every participant's share counts toward their totalExpense — including the payer's own share
-            debtorSheet.addTotalExpense(splitAmount);
+            if(!isSettlement) debtorSheet.addTotalExpense(splitAmount);
 
             // Skip self-balance (Payer owing themselves)
             // But only create a ledger entry between payer and debtor if they're different people

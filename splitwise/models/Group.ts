@@ -13,6 +13,16 @@ export class Group {
         public expenses: Expenses[] = [] // Default empty array
     ) {}
 
+    private simplifyDebtsEnabled: boolean = false;
+
+    public isSimplifyDebtsEnabled(): boolean {
+        return this.simplifyDebtsEnabled;
+    }
+
+    public setSimplifyDebtsEnabled(enabled: boolean): void {
+        this.simplifyDebtsEnabled = enabled;
+    }
+
     public getAllBalanceSheets(): Map<string, BalanceSheet> {
         return this.userBalanceSheets;
     }

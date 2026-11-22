@@ -29,7 +29,7 @@ export class NearestMovingTowards implements DispatchElevatorStrategy{
                 bestDist = dist;
                 best = e;
             }
-            return best;
         }
+        return best;
     }
 }

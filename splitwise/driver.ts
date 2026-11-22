@@ -12,8 +12,9 @@ async function driver() {
     // Initialize Repositories and Services (Dependency Injection)
     const groupRepo = new InMemoryGroupRepo();
     const balanceSheetService = new BalanceSheetService();
-    const expenseService = new ExpenseService(groupRepo, balanceSheetService);
     const debtSimplifier = new DebtSimplificationService();
+    const expenseService = new ExpenseService(groupRepo, balanceSheetService, debtSimplifier);
+   
 
     const groupService = new GroupService(
         groupRepo,
@@ -61,7 +62,7 @@ async function driver() {
 
     // Add Expense #2: EXACT SPLIT
     // Bob pays ₹500 for shopping: Charlie owes ₹300, David owes ₹200
-    console.log("2. Adding Taxi Expense (EXACT Split)...");
+    console.log("2. Adding Shopping Expense (EXACT Split)...");
     console.log("Bob pays ₹500 for shopping: Charlie owes ₹300, David owes ₹200");
 
     const exactSplits: SplitData[] = [
@@ -113,6 +114,27 @@ async function driver() {
         const toUser = updatedGroup.members.get(tranc.to)?.name;
         console.log(`${fromUser} --> pays --> ${toUser}: ${tranc.amount}`)
     });
+
+    await groupService.toggleSimplifyDebts(tripGroup.groupId, true);
+    debtSimplifier.applySimplifiedBalances(tripGroup, transactions);
+
+    console.log(`\n${userA.name} settle with ${userC.name}`);
+    await expenseService.settleUp(
+        tripGroup.groupId,
+        userA,
+        userC,
+        250
+    )
+
+    console.log(`\n${userD.name} settle with ${userC.name}`);
+    await expenseService.settleUp(
+        tripGroup.groupId,
+        userD,
+        userC,
+        450
+    )
+
+    balanceSheetService.printGroupBalanceSheets(tripGroup);
 }
 driver().catch(console.error);
 //  npx tsx driver.ts

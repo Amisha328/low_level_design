@@ -1,9 +1,11 @@
 export class BalanceSheet {
     private userId: string;
+    // Who owes whom right now
     private totalOwed: number = 0; // total amount I owe to others
     private totalGetBack: number = 0; // total amount others owe me
 
     // aggregate tracking across expense
+    // it's a historical counter of how much money a user put up (totalPaid) or consumed in group expenses (totalExpense).
     private totalPaid: number = 0; // total out-of-money paid upfront
     private totalExpense: number = 0; // total financial obligation/share across all expenses
 
@@ -55,6 +57,11 @@ export class BalanceSheet {
 
         this.totalOwed = Number(owed.toFixed(2));
         this.totalGetBack = Number(getBack.toFixed(2));
+    }
+
+    public resetPairwiseBalances(): void {
+        this.balances.clear();
+        this.recalculateTotals();
     }
 
     public getTotalPaid(): number { return this.totalPaid; }
